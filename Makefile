@@ -10,6 +10,8 @@ SKILLS_NPX ?= mise exec -- npx
 SKILLS ?= $(SKILLS_NPX) skills
 AGENTS_TARGETS := codex claude-code
 AGENTS_SKILLS_AGENT_FLAGS := $(foreach agent,$(AGENTS_TARGETS),-a $(agent))
+CLAUDE_MARKETPLACE_NAMES ?= dapi
+CLAUDE_PLUGIN_NAMESPACE ?= dapi
 
 GOOGLE_WORKSPACE_SKILLS := \
 	gws-docs \
@@ -27,7 +29,9 @@ ai: bootstrap
 bootstrap: mise-package mise-install
 
 check:
-	@./scripts/test-setup.sh
+	@CLAUDE_MARKETPLACE_NAMES="$(CLAUDE_MARKETPLACE_NAMES)" \
+	CLAUDE_EXPECTED_PLUGINS="$(CLAUDE_PLUGINS)" \
+	./scripts/test-setup.sh
 
 mise-package:
 	@set -e; \
@@ -105,13 +109,13 @@ agents-skills-list:
 
 # --- Claude Code plugins ---
 
-CLAUDE_PLUGINS_MARKETPLACES = dapi/claude-code-marketplace
+CLAUDE_PLUGINS_MARKETPLACES ?= dapi/claude-code-marketplace
 
-CLAUDE_PLUGINS = \
-	himalaya@dapi \
-	pr-review-fix-loop@dapi \
-	spec-reviewer@dapi \
-	zellij-workflow@dapi \
+CLAUDE_PLUGINS ?= \
+	himalaya@$(CLAUDE_PLUGIN_NAMESPACE) \
+	pr-review-fix-loop@$(CLAUDE_PLUGIN_NAMESPACE) \
+	spec-reviewer@$(CLAUDE_PLUGIN_NAMESPACE) \
+	zellij-workflow@$(CLAUDE_PLUGIN_NAMESPACE) \
 
 agents-claude-plugins:
 	@for mp in $(CLAUDE_PLUGINS_MARKETPLACES); do \

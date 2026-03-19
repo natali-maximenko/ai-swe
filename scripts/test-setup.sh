@@ -18,16 +18,11 @@ REQUIRED_SKILLS=(
   "gws-sheets"
 )
 
-OPTIONAL_CLAUDE_MARKETPLACES=(
-  "dapi"
-)
+DEFAULT_CLAUDE_MARKETPLACE_NAMES="${CLAUDE_MARKETPLACE_NAMES:-dapi}"
+DEFAULT_CLAUDE_EXPECTED_PLUGINS="${CLAUDE_EXPECTED_PLUGINS:-himalaya@dapi pr-review-fix-loop@dapi spec-reviewer@dapi zellij-workflow@dapi}"
 
-OPTIONAL_CLAUDE_PLUGINS=(
-  "himalaya@dapi"
-  "pr-review-fix-loop@dapi"
-  "spec-reviewer@dapi"
-  "zellij-workflow@dapi"
-)
+read -r -a OPTIONAL_CLAUDE_MARKETPLACES <<< "$DEFAULT_CLAUDE_MARKETPLACE_NAMES"
+read -r -a OPTIONAL_CLAUDE_PLUGINS <<< "$DEFAULT_CLAUDE_EXPECTED_PLUGINS"
 
 section() {
   printf '\n== %s ==\n' "$1"
