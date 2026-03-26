@@ -1,18 +1,56 @@
-# Setup/bootstrap-репозиторий для курса AI driven development
+# AI SWE
 
-![AI setup meme](https://i.programmerhumor.io/2025/07/9d40116f39da7b5d83f41899584b86c9c21d5c750c6330ff88d46532ecfb8d59.png)
+AI Driven Development repository
 
-Этот репозиторий создан для [курса Данила Письменного по ai-driven-development на Thinknetica](https://thinknetica.com/ai/ai_swe_course?utm_source=telegram&utm_medium=post&utm_campaign=ai_swe_course&utm_content=dpismenny).
+We will develop Elixir library for auditing entity changes at the database level.
 
-В первую очередь это базовый setup/bootstrap-репозиторий для окружения и агентских инструментов. Во вторую очередь это шаблон, из которого можно стартовать учебный проект.
+## What This Project Is
 
-## Цели этого репозитория
+`ai-swe` is a product repository, not just a setup template.
 
-1. Дать всем участникам общий базовый ai-setup по инструментам.
-2. Дать стартовую заготовку для учебного проекта, в котором происходит тренировка заданий.
+Project goal: provide a reusable audit component that captures and persists change history for entities (`create/update/delete`) with reliable metadata about who changed what and when.
 
-## Как пользоваться этим репозиторием
+Primary value:
 
-1. Выполните инструкции в [SETUP.md](SETUP.md).
-2. После установки проверьте окружение командой `make check`.
-3. Если вы создаете на основе этого репозитория свой учебный проект, замените этот `README.md` описанием проекта и закоммитьте изменения.
+- compliance and internal controls;
+- debugging and incident investigation;
+- timeline reconstruction and change traceability.
+
+Detailed project intent: see [PROJECT.md](PROJECT.md).
+
+## Current Status
+
+The repository currently contains:
+
+- product intent and scope (`PROJECT.md`);
+- development environment setup (`SETUP.md`);
+- bootstrap/check automation (`Makefile`, `scripts/test-cursor-setup.sh`).
+
+Implementation of the library itself is the next stage.
+
+## Development Environment
+
+Use the setup guide:
+
+- [SETUP.md](SETUP.md)
+
+Quick start:
+
+```bash
+make cursor
+direnv allow
+make check
+```
+
+Optional local tools:
+
+```bash
+make extras
+make cursor-cli
+```
+
+## Principles
+
+- Product decisions are primary; setup serves development.
+- Default path should remain minimal and Linux-friendly.
+- Optional and legacy integrations stay opt-in.

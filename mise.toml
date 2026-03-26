@@ -1,12 +1,13 @@
 [tools]
 direnv = "latest"
 "github:cli/cli" = "latest"
-"github:pimalaya/himalaya" = "latest"
 gitleaks = "latest"
 jq = "latest"
-node = "latest"
 "ubi:dapi/port-selector" = "latest"
-ruby = "3.4.8"
-tmux = "latest"
-yarn = "1"
-zellij = "latest"
+erlang = "latest"
+elixir = "latest"
+node = "latest"
+
+# Optional extras (install manually via `make extras`):
+# tmux = "latest"
+# zellij = "latest"

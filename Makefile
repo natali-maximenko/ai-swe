@@ -1,4 +1,4 @@
-# AI agents, CLI tools, skills, and plugins
+# Cursor + Elixir core setup, legacy AI flow
 
 BLUE := \033[0;34m
 NC := \033[0m
@@ -21,24 +21,26 @@ GOOGLE_WORKSPACE_SKILLS := \
 	gws-drive \
 	gws-sheets
 
-.PHONY: ai bootstrap mise-package mise-install check check-context register
-.PHONY: agents-install agents agents-cli agents-skills extra-skills
+.PHONY: cursor ai bootstrap mise-package mise-install mise-install-all check check-ai check-context register
+.PHONY: cursor-cli extras agents-install agents agents-cli agents-skills extra-skills
 .PHONY: agents-skills-install agents-skills-list agents-skills-check-npx
+
+# --- Cursor-first flow (default) ---
+
+cursor: bootstrap
+
+# --- Legacy AI flow (optional) ---
 
 ai: bootstrap
 	@$(MAKE) agents-install
 
 bootstrap: mise-package mise-install
 
-check:
-	@CLAUDE_MARKETPLACE_NAMES="$(CLAUDE_MARKETPLACE_NAMES)" \
-	CLAUDE_EXPECTED_PLUGINS="$(CLAUDE_PLUGINS)" \
-	./scripts/test-setup.sh
-	@./scripts/test-context.sh
-
+## Legacy context consistency check
 check-context:
 	@./scripts/test-context.sh
 
+## Install mise itself
 mise-package:
 	@set -e; \
 	if command -v mise > /dev/null 2>&1; then \
@@ -66,23 +68,47 @@ mise-package:
 	fi
 
 mise-install: mise-package
-	@echo "Install mise tools"
+	@echo "Install core mise tools"
 	@mise install --quiet
+
+mise-install-all: mise-package
+	@echo "Install all mise tools"
+	@mise install --quiet
+
+## Cursor + Elixir environment check
+check:
+	@./scripts/test-cursor-setup.sh
+
+## Legacy AI environment check
+check-ai:
+	@CLAUDE_MARKETPLACE_NAMES="$(CLAUDE_MARKETPLACE_NAMES)" \
+	CLAUDE_EXPECTED_PLUGINS="$(CLAUDE_PLUGINS)" \
+	./scripts/test-setup.sh
+	@./scripts/test-context.sh
+
+## Optional Cursor CLI
+cursor-cli:
+	@$(NPM) install -g @cursor/cli
+
+## Optional local terminal tooling
+extras:
+	@echo "$(BLUE)📦 Installing optional local tools...$(NC)"
+	@mise install --quiet tmux@latest zellij@latest
 
 agents-install: agents agents-cli agents-skills
 
-# --- AI Agents ---
+# --- Legacy AI agents ---
 
 agents:
 	@$(NPM) install -g @anthropic-ai/claude-code
 	@$(NPM) install -g @openai/codex
 
-# --- CLI tools used by agents ---
+# --- CLI tools used by legacy agents ---
 
 agents-cli:
 	@$(NPM) install -g @playwright/cli@latest
 
-# --- Skills for agents ---
+# --- Skills for legacy agents ---
 
 agents-skills: agents-skills-install
 

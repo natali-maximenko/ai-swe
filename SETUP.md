@@ -1,159 +1,119 @@
-# Базовый сетап для курса AI driven development
+# Базовый setup для Cursor + Elixir
 
-Основное взаимодействие с окружающей системой происходит через CLI-утилиты. Поэтому важно иметь рабочий базовый набор инструментов и agent skills, а после установки проверить, что они не только поставились, но и реально настроены под ваши аккаунты.
+Этот файл — каноническая bootstrap-инструкция для `ai-swe` и проектов, созданных на его основе.
 
-Этот файл — каноническая bootstrap-инструкция для самого `ai-setup` и для учебных проектов, созданных как fork на его основе. В downstream-документах ссылайтесь на этот файл, а не копируйте команды `make`, login-шаги, `direnv allow` и `make check`.
+Основной сценарий здесь — разработка в Cursor с Elixir-стеком. Legacy-поток под `claude-code/codex` сохранен отдельно и ставится только по явной команде.
 
-## Автоматическая установка
+## Быстрый старт
 
-Подходит для базовых Linux-дистрибутивов (Ubuntu-tested) и macOS.
+Подходит для Linux/macOS.
 
 ```bash
-make
+make cursor
 ```
 
-По умолчанию `make` запускает target `ai`, который последовательно:
+`make cursor` выполняет:
 
-1. ставит `mise`, если его еще нет;
-2. устанавливает инструменты из `mise.toml`;
-3. ставит CLI-агенты;
-4. ставит CLI-утилиты для агентов;
-5. ставит curated skills для `codex` и `claude-code`;
-6. добавляет marketplace и plugins для `claude-code`.
+1. установку `mise` (если еще нет);
+2. установку core-инструментов из `mise.toml`;
+3. подготовку базового локального окружения для Cursor + Elixir.
 
-## Авторизация
+## Авторизация и shell
 
-После `make` нужно пройти авторизацию в обязательных сервисах — без этого `make check` упадёт на проверке авторизации:
+Обязательный логин после установки:
 
 ```bash
-claude auth login
-codex login
 gh auth login
 ```
 
-Затем настройте интеграцию `direnv` с вашей shell (см. [раздел direnv](#direnv) ниже) и разрешите `.envrc`:
+Затем настройте `direnv` hook для вашей shell и разрешите `.envrc`:
 
 ```bash
 direnv allow
 ```
 
-`tgcli`, `googleworkspace/cli` и `himalaya` — опциональные: `make check` покажет `WARN`, если они не настроены, но не завершится ошибкой.
+Документация: [direnv hooks](https://direnv.net/docs/hook.html)
 
 ## Проверка установки
-
-После авторизации прогоните базовую проверку окружения:
 
 ```bash
 make check
 ```
 
-`make check` проверяет:
+`make check` (скрипт `scripts/test-cursor-setup.sh`) проверяет:
 
-- обязательный toolchain из локального setup;
-- установку agent CLI;
-- обязательные проверки авторизации для `claude`, `codex` и `gh`;
-- установку вспомогательных CLI для агентов: `playwright-cli`, `tgcli`, `googleworkspace/cli` (`gws`) и `himalaya`;
-- опциональные проверки настройки `tgcli`, `googleworkspace/cli`, `himalaya`, curated skills и Claude plugins.
+- core toolchain: `mise`, `direnv`, `gh`, `gitleaks`, `jq`, `port-selector`;
+- корректность `direnv`-экспорта `PORT`;
+- Elixir toolchain: `erl`, `elixir`, `mix`.
 
-Команда завершается с ошибкой только на обязательных проверках. Для опциональных интеграций она оставляет `WARN`, чтобы было видно, что ещё не настроено, но базовая установка уже пригодна к работе.
+Опциональные инструменты проверяются как `WARN`:
 
-## Что устанавливается автоматически
+- `node`
+- `cursor` (CLI)
+- `tmux`
+- `zellij`
 
-### Инструменты через `mise`
+## Что ставится автоматически (core)
 
-Из `mise.toml` ставятся: `direnv`, `gh`, `himalaya`, `gitleaks`, `jq`, `node`, `port-selector`, `ruby`, `tmux`, `yarn`, `zellij`.
+Из `mise.toml` устанавливаются:
 
-### Кодинговые агенты
+- `direnv`
+- `gh`
+- `gitleaks`
+- `jq`
+- `port-selector`
+- `erlang`
+- `elixir`
+- `node`
 
-- `@anthropic-ai/claude-code`
-- `@openai/codex`
+## Опциональные команды
 
-### CLI-утилиты для агентов
-
-Обязательные:
-
-| Утилита | Для чего | Как проверить |
-| --- | --- | --- |
-| [@playwright/cli](https://github.com/microsoft/playwright-cli) | Автоматизация работы с сайтами и тестирование веба | Попросить агента зайти на сайт и сделать скриншот |
-| [gh](https://github.com/cli/cli) | Работа с GitHub API за пределами `git`: просмотр и создание issue, pull request, projects | Попросить агента посмотреть или создать issue в репозитории |
-| [port-selector](https://github.com/dapi/port-selector) | Автоматический выбор свободного порта из диапазона для локальных dev-серверов и e2e при параллельной работе агентов | Выполнить `port-selector` и убедиться, что команда возвращает номер свободного порта |
-| [tgcli](https://github.com/dapi/tgcli) | Сбор требований из переписки | Попросить агента найти что-то в личной переписке в Telegram или закинуть пост в Избранное |
-| [googleworkspace/cli](https://github.com/googleworkspace/cli) (`gws-docs`, `gws-docs-write`, `gws-drive`, `gws-sheets`) | Сбор требований и формирование проектной документации | Дать агенту ссылку на закрытый Google Doc и попросить прочитать его и дать выдержку |
-| [himalaya](https://github.com/pimalaya/himalaya) | Работа с почтой через IMAP/SMTP из CLI | Попросить агента прочитать письмо или найти письмо по теме после настройки почтового аккаунта |
-
-Сами CLI ставятся автоматически и их наличие проверяется через `make check`. При этом доступ к конкретным аккаунтам и системам для `tgcli`, `googleworkspace/cli` и `himalaya` остается опциональной настройкой: если вы ими пока не пользуетесь, `make check` покажет `WARN`, а не завершится ошибкой.
-
-Что не ставится автоматически, но желательно поставить:
-
-Методы трекинга задачи и хранения документов зависят от конкретной компании или сценария и должны ставиться отдельно, если они вам нужны:
-
-| Утилита | Для чего | Как проверить |
-| --- | --- | --- |
-| [jira-cli](https://github.com/ankitpokhrel/jira-cli) | Работа с Jira | Попросить агента прочитать или создать issue |
-| [linear-cli](https://github.com/schpet/linear-cli) | Работа с Linear | Попросить агента прочитать или создать issue |
-| [trello-cli](https://github.com/mheap/trello-cli) | Работа с Trello | Попросить агента прочитать или создать карточку |
-
-### Skills для агентов
-
-Эти skills ставятся для `codex` и `claude-code`:
-
-`tgcli`, `playwright-cli`, `prompt-engeneering`, `gws-docs`, `gws-docs-write`, `gws-drive`, `gws-sheets`.
-
-### Plugins для Claude Code
-
-Во время установки добавляются marketplace:
-
-- `dapi/claude-code-marketplace`
-
-И ставятся plugins:
-
-`himalaya@dapi`, `pr-review-fix-loop@dapi`, `spec-reviewer@dapi`, `zellij-workflow@dapi`.
-
-Если нужно ставить Claude plugins из вашего marketplace, это можно переопределить при запуске `make`, например:
+Установка Cursor CLI:
 
 ```bash
-make agents-claude-plugins \
-  CLAUDE_PLUGINS_MARKETPLACES=your-org/claude-code-marketplace \
-  CLAUDE_MARKETPLACE_NAMES=your-org \
-  CLAUDE_PLUGIN_NAMESPACE=your-org \
-  CLAUDE_PLUGINS='zellij-workflow@your-org'
+make cursor-cli
 ```
 
-## Опциональные интеграции
+Установка локальных terminal extras:
 
-Установка инструмента, skill или plugin ещё не означает, что агент уже сможет работать с конкретной системой. После настройки обязательной авторизации при необходимости подключите:
+```bash
+make extras
+```
 
-- `tgcli`: подключить Telegram-аккаунт
-- `googleworkspace/cli`: подключить Google Workspace
-- `himalaya`: настроить почтовый аккаунт и доступ к IMAP/SMTP
+Эта команда добавляет `tmux` и `zellij`, но они не ставятся по умолчанию.
 
-После настройки аккаунтов повторно запустите `make check`, чтобы убедиться, что `WARN`-статусы для нужных вам интеграций ушли.
+## Legacy: AI agents flow (опционально)
+
+Если нужен старый поток для `claude-code/codex`, используйте:
+
+```bash
+make ai
+```
+
+Проверка legacy-окружения:
+
+```bash
+make check-ai
+```
+
+Legacy-поток включает установку agent CLI, skills и Claude plugins/marketplaces и не требуется для Cursor-first работы.
 
 ## Что сохранить в производном проекте
 
-Если вы создаете учебный проект на основе этого репозитория, исходный `README.md` предполагается заменить README вашего проекта.
+Если вы делаете учебный/рабочий проект на базе этого репозитория, сохраните setup-инструкции в одном из файлов:
 
-Чтобы вместе с этим не потерять onboarding по окружению, сохраните требования к локальному setup в отдельном постоянном документе производного репозитория:
+- `SETUP.md`
+- `CONTRIBUTING.md`
+- `docs/onboarding.md`
 
-- `SETUP.md`, если хотите держать setup отдельно от README;
-- `CONTRIBUTING.md`, если это часть developer onboarding;
-- `docs/onboarding.md`, если нужна более подробная внутренняя документация.
+Минимально зафиксируйте:
 
-Минимум, который стоит сохранить в таком документе:
-
-- как поднять локальное окружение;
-- как пройти обязательную авторизацию для CLI;
+- как поднять окружение;
+- как пройти авторизацию CLI;
 - как проверить результат через `make check`.
 
 ## direnv
 
-В проекте используется `direnv`:
+В проекте используется `direnv`: `.envrc` подхватывает `.env` и `.env.local`, а если `PORT` не задан явно — назначает его через `port-selector`.
 
-1. настройте интеграцию с вашей shell: [direnv hooks documentation](https://direnv.net/docs/hook.html)
-2. разрешите локальный `.envrc` в корне проекта:
-
-```bash
-direnv allow
-```
-
-`.envrc` подхватывает `.env` и `.env.local`, а если `PORT` не задан явно, выставляет его автоматически через `port-selector`. `make check` проверяет, что `direnv` действительно экспортирует числовой `PORT`.
+`make check` проверяет, что `direnv` экспортирует числовой `PORT`.
