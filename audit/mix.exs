@@ -9,7 +9,8 @@ defmodule Audit.MixProject do
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
       ecto_repos: [Audit.Repo],
-      deps: deps()
+      deps: deps(),
+      aliases: aliases()
     ]
   end
 
@@ -25,10 +26,20 @@ defmodule Audit.MixProject do
   defp deps do
     [
       {:ecto_sql, "~> 3.13"},
-      {:postgrex, ">= 0.0.0"}
+      {:postgrex, ">= 0.0.0"},
+      {:jason, "~> 1.4"}
     ]
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
+
+  defp aliases do
+    [
+      setup: ["deps.get", "ecto.setup"],
+      "ecto.setup": ["ecto.create", "ecto.migrate"],
+      "ecto.reset": ["ecto.drop", "ecto.setup"],
+      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
+    ]
+  end
 end

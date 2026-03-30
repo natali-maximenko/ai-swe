@@ -1,11 +1,15 @@
 # Audit
 
-**TODO: Add description**
+Elixir library for database-level audit events.
+
+The library provides:
+
+- storage schema (`Audit.AuditEvent`);
+- migration interface (`Audit.Migrations.up/0`, `Audit.Migrations.down/0`).
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `audit` to your list of dependencies in `mix.exs`:
+Add dependency in your app:
 
 ```elixir
 def deps do
@@ -15,7 +19,33 @@ def deps do
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/audit>.
+## Setup in a consumer project
+
+1. Generate an empty migration in your app:
+
+```bash
+mix ecto.gen.migration add_audit_table
+```
+
+2. Fill migration with calls to the library interface:
+
+```elixir
+defmodule MyApp.Repo.Migrations.AddAuditTable do
+  use Ecto.Migration
+
+  def up do
+    Audit.Migrations.up()
+  end
+
+  def down do
+    Audit.Migrations.down()
+  end
+end
+```
+
+3. Run migration:
+
+```bash
+mix ecto.migrate
+```
 
